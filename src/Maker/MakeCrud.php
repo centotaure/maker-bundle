@@ -130,7 +130,7 @@ final class MakeCrud extends AbstractMaker
         $entityTwigVarSingular = Str::asTwigVariable($entityVarSingular);
 
         $routeName = Str::asRouteName($controllerClassDetails->getRelativeNameWithoutSuffix());
-        $templatesPath = Str::asFilePath($controllerClassDetails->getRelativeNameWithoutSuffix());
+        $templatesPath = $entityClassDetails->getShortName();
 
         $generator->generateController(
             $controllerClassDetails->getFullName(),
@@ -140,7 +140,7 @@ final class MakeCrud extends AbstractMaker
                     'entity_class_name' => $entityClassDetails->getShortName(),
                     'form_full_class_name' => $formClassDetails->getFullName(),
                     'form_class_name' => $formClassDetails->getShortName(),
-                    'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
+                    'route_path' => strtolower($entityClassDetails->getShortName()),
                     'route_name' => $routeName,
                     'templates_path' => $templatesPath,
                     'entity_var_plural' => $entityVarPlural,
@@ -153,6 +153,7 @@ final class MakeCrud extends AbstractMaker
             )
         );
 
+
         $this->formTypeRenderer->render(
             $formClassDetails,
             $entityDoctrineDetails->getFormFields(),
@@ -160,12 +161,12 @@ final class MakeCrud extends AbstractMaker
         );
 
         $templates = [
-            '_delete_form' => [
+            'delete_form' => [
                 'route_name' => $routeName,
                 'entity_twig_var_singular' => $entityTwigVarSingular,
                 'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
             ],
-            '_form' => [],
+            'form' => [],
             'edit' => [
                 'entity_class_name' => $entityClassDetails->getShortName(),
                 'entity_twig_var_singular' => $entityTwigVarSingular,
@@ -205,7 +206,7 @@ final class MakeCrud extends AbstractMaker
 
         $this->writeSuccessMessage($io);
 
-        $io->text(sprintf('Next: Check your new CRUD by going to <fg=yellow>%s/</>', Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix())));
+        $io->text(sprintf('Next: Check your new CRUD by going to <fg=yellow>%s/</>', strtolower($entityClassDetails->getShortName())));
     }
 
     /**

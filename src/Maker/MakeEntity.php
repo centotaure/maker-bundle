@@ -363,6 +363,10 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
             $data['nullable'] = true;
         }
 
+        if ($io->confirm('Can this field is showing in grid ?', false)) {
+            $data['grid'] = true;
+        }
+        
         return $data;
     }
 

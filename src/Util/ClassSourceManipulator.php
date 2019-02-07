@@ -88,8 +88,15 @@ final class ClassSourceManipulator
         $typeHint = $this->getEntityTypeHint($columnOptions['type']);
         $nullable = $columnOptions['nullable'] ?? false;
         $isId = (bool) ($columnOptions['id'] ?? false);
+        $grid = $columnOptions['grid'] ?? false;
+        unset($columnOptions['grid']);
 
         $comments[] = $this->buildAnnotationLine('@ORM\Column', $columnOptions);
+       if($grid === true && $isId === false){
+           $comments[]= '@GRID\Column(operatorsVisible=false,visible=true)';
+       }else{
+           $comments[]= '@GRID\Column(visible=false)';
+       }
         $defaultValue = null;
         if ('array' === $typeHint) {
             $defaultValue = new Node\Expr\Array_([], ['kind' => Node\Expr\Array_::KIND_SHORT]);

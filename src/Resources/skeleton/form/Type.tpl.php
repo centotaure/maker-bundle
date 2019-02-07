@@ -11,8 +11,10 @@ use <?= $className ?>;
 <?php endforeach; ?>
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 <?php foreach ($constraint_use_statements as $className): ?>
 use <?= $className ?>;
+
 <?php endforeach; ?>
 
 class <?= $class_name ?> extends AbstractType
@@ -31,6 +33,15 @@ class <?= $class_name ?> extends AbstractType
             ])
 <?php endif; ?>
 <?php endforeach; ?>
+            ->add(
+            "create",
+            SubmitType::class,
+                [    "label" => "<?= $bounded_class_name ?>.create",
+                    'attr' =>
+                    ['class' => 'button success small'],
+
+                ]
+            );
         ;
     }
 

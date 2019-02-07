@@ -11,37 +11,51 @@ use Symfony\Bundle\FrameworkBundle\Controller\<?= $parent_class_name ?>;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Controller\ApyDataGridController;
 
 /**
  * @Route("<?= $route_path ?>")
  */
-class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
+class <?= $class_name ?> extends ApyDataGridController
 {
     /**
-     * @Route("/", name="<?= $route_name ?>_index", methods={"GET"})
+     * @Route("/", name="app_<?= $route_name ?>_index", methods={"GET"})
      */
-<?php if (isset($repository_full_class_name)): ?>
-    public function index(<?= $repository_class_name ?> $<?= $repository_var ?>): Response
-    {
-        return $this->render('<?= $templates_path ?>/index.html.twig', [
-            '<?= $entity_twig_var_plural ?>' => $<?= $repository_var ?>->findAll(),
-        ]);
-    }
-<?php else: ?>
-    public function index(): Response
-    {
-        $<?= $entity_var_plural ?> = $this->getDoctrine()
-            ->getRepository(<?= $entity_class_name ?>::class)
-            ->findAll();
+    public function indexAction(
+    EntityManagerInterface $em,
+    AuthorizationCheckerInterface $checker,
+    TokenStorageInterface $token
+    ) {
 
-        return $this->render('<?= $templates_path ?>/index.html.twig', [
-            '<?= $entity_twig_var_plural ?>' => $<?= $entity_var_plural ?>,
-        ]);
+        $data = array(
+        'entity' => 'App:<?= $entity_class_name ?>',
+        'show' => 'app_<?= $route_name ?>_show',
+        'edit' => 'app_<?= $route_name ?>_edit',
+        );
+
+        $this->gridList($data);
+
+        $em->getRepository(<?= $entity_class_name ?>::class)->getList(
+        $this->grid->getSource(),
+        $checker,
+        $token->getToken()->getUser()
+        );
+
+
+
+        return $this->grid->getGridResponse(
+        '<?= $templates_path ?>/index.html.twig'
+        );
     }
-<?php endif ?>
+
+
+
 
     /**
-     * @Route("/new", name="<?= $route_name ?>_new", methods={"GET","POST"})
+     * @Route("/new", name="app_<?= $route_name ?>_new", methods={"GET","POST"})
      */
     public function new(Request $request): Response
     {
@@ -54,7 +68,7 @@ class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
             $entityManager->persist($<?= $entity_var_singular ?>);
             $entityManager->flush();
 
-            return $this->redirectToRoute('<?= $route_name ?>_index');
+            return $this->redirectToRoute('app_<?= $route_name ?>_index');
         }
 
         return $this->render('<?= $templates_path ?>/new.html.twig', [
@@ -64,7 +78,7 @@ class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
     }
 
     /**
-     * @Route("/{<?= $entity_identifier ?>}", name="<?= $route_name ?>_show", methods={"GET"})
+     * @Route("/{<?= $entity_identifier ?>}", name="app_<?= $route_name ?>_show", methods={"GET"})
      */
     public function show(<?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
@@ -74,7 +88,7 @@ class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
     }
 
     /**
-     * @Route("/{<?= $entity_identifier ?>}/edit", name="<?= $route_name ?>_edit", methods={"GET","POST"})
+     * @Route("/{<?= $entity_identifier ?>}/edit", name="app_<?= $route_name ?>_edit", methods={"GET","POST"})
      */
     public function edit(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
@@ -84,7 +98,7 @@ class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('<?= $route_name ?>_index', [
+            return $this->redirectToRoute('app_<?= $route_name ?>_index', [
                 '<?= $entity_identifier ?>' => $<?= $entity_var_singular ?>->get<?= ucfirst($entity_identifier) ?>(),
             ]);
         }
@@ -96,7 +110,7 @@ class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
     }
 
     /**
-     * @Route("/{<?= $entity_identifier ?>}", name="<?= $route_name ?>_delete", methods={"DELETE"})
+     * @Route("/{<?= $entity_identifier ?>}", name="app_<?= $route_name ?>_delete", methods={"DELETE"})
      */
     public function delete(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
@@ -106,6 +120,6 @@ class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('<?= $route_name ?>_index');
+        return $this->redirectToRoute('app_<?= $route_name ?>_index');
     }
 }

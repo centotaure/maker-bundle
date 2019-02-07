@@ -5,7 +5,7 @@ namespace <?= $namespace ?>;
 <?php if ($api_resource): ?>use ApiPlatform\Core\Annotation\ApiResource;
 <?php endif ?>
 use Doctrine\ORM\Mapping as ORM;
-
+use APY\DataGridBundle\Grid\Mapping as GRID;
 /**
 <?php if ($api_resource): ?> * @ApiResource()
 <?php endif ?>
@@ -17,6 +17,7 @@ class <?= $class_name."\n" ?>
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @GRID\Column(visible=false)
      */
     private $id;
 
