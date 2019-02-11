@@ -15,9 +15,12 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\ApyDataGridController;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+
 
 /**
  * @Route("<?= $route_path ?>")
+ * @IsGranted("ROLE_USER")
  */
 class <?= $class_name ?> extends ApyDataGridController
 {
