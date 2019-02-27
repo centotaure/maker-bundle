@@ -113,7 +113,7 @@ class <?= $class_name ?> extends ApyDataGridController
     }
 
     /**
-     * @Route("/{<?= $entity_identifier ?>}", name="app_<?= $route_name ?>_delete", methods={"DELETE"})
+     * @Route("/{<?= $entity_identifier ?>}/delete", name="app_<?= $route_name ?>_delete", methods={"DELETE"})
      */
     public function delete(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {

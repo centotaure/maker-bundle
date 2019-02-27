@@ -23,43 +23,43 @@ use Symfony\Component\Console\Input\InputInterface;
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
  * @author Ryan Weaver <weaverryan@gmail.com>
  */
-final class MakeUnitTest extends AbstractMaker
+final class MakeTests extends AbstractMaker
 {
     public static function getCommandName(): string
     {
-        return 'make:unit-test';
+        return 'make:tests';
     }
 
     public function configureCommand(Command $command, InputConfiguration $inputConf)
     {
         $command
-            ->setDescription('Creates a new unit test class')
+            ->setDescription('Creates a new unit test class and functional test')
             ->addArgument('name', InputArgument::OPTIONAL, 'The name of the unit test class (e.g. <fg=yellow>UtilTest</>)')
             ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/MakeUnitTest.txt'));
     }
 
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator)
     {
-        $testClassNameDetails = $generator->createClassNameDetails(
-            $input->getArgument('name'),
-            'Tests\\Services\\',
-            'Test'
-        );
 
-        $generator->generateClass(
-            $testClassNameDetails->getFullName(),
-            'test/Unit.tpl.php',
-            []
-        );
+        $command = $this->getApplication()->find('make:unit-test');
 
-        $generator->writeChanges();
+        $arguments = [
+            'command' => 'make:unit-test',
+            'name'    => $input->getArgument('name')
+        ];
 
-        $this->writeSuccessMessage($io);
+        $greetInput = new ArrayInput($arguments);
+        $returnCode = $command->run($greetInput, $output);
 
-        $io->text([
-            'Next: Open your new test class and start customizing it.',
-            'Find the documentation at <fg=yellow>https://symfony.com/doc/current/testing.html#unit-tests</>',
-        ]);
+        $command = $this->getApplication()->find('make:functional-test');
+
+        $arguments = [
+            'command' => 'make:functional-test',
+            'name'    => $input->getArgument('name')
+        ];
+
+        $greetInput = new ArrayInput($arguments);
+        $returnCode = $command->run($greetInput, $output);
     }
 
     public function configureDependencies(DependencyBuilder $dependencies)

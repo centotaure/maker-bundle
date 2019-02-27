@@ -24,9 +24,9 @@ class <?= $class_name ?> extends AbstractType
         $builder
 <?php foreach ($form_fields as $form_field => $typeOptions): ?>
 <?php if (null === $typeOptions['type'] && !$typeOptions['options_code']): ?>
-            ->add('<?= $form_field ?>')
+            ->add('<?= $form_field ?>',null,["label" => "form.<?= strtolower($bounded_class_name)?>.<?= $form_field ?>"])
 <?php elseif (null !== $typeOptions['type'] && !$typeOptions['options_code']): ?>
-            ->add('<?= $form_field ?>', <?= $typeOptions['type'] ?>::class)
+            ->add('<?= $form_field ?>', <?= $typeOptions['type'] ?>::class,["label"=>"form.<?= strtolower($bounded_class_name)?>.<?= $form_field ?>"])
 <?php else: ?>
             ->add('<?= $form_field ?>', <?= $typeOptions['type'] ? ($typeOptions['type'].'::class') : 'null' ?>, [
 <?= $typeOptions['options_code']."\n" ?>
@@ -36,7 +36,7 @@ class <?= $class_name ?> extends AbstractType
             ->add(
             "create",
             SubmitType::class,
-                [    "label" => "<?= $bounded_class_name ?>.create",
+                [    "label" => "form.<?= strtolower($bounded_class_name) ?>.create",
                     'attr' =>
                     ['class' => 'button success small'],
 

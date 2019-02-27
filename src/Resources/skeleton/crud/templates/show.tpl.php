@@ -21,14 +21,16 @@
             {{ include('<?= $entity_class_name ?>/delete_form.html.twig') }}
         </div>
         <div class="small-6 columns text-center">
-            <a class="button warning " href="{{ path('app_<?= $route_name ?>_edit', {'<?= $entity_identifier ?>': <?= $entity_twig_var_singular ?>.<?= $entity_identifier ?>}) }}"> Modifier</a>
+            <a class="button warning "
+               href="{{ path('app_<?= $route_name ?>_edit', {'<?= $entity_identifier ?>': <?= $entity_twig_var_singular ?>.<?= $entity_identifier ?>}) }}">
+                {{'form.<?= $route_name ?>.update'|trans }}</a>
         </div>
 
     </div>
 </div>
 <div class="row">
     <div class="small-8 columns small-offset-2">
-        <a href="{{ path('app_<?= $route_name ?>_index') }}"> < back to list</a>
+        <a href="{{ path('app_<?= $route_name ?>_index') }}"> <  {{'entity.<?= $route_name ?>.returnlist'|trans }}</a>
     </div>
 
 </div>

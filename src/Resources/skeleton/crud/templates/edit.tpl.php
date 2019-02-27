@@ -2,6 +2,6 @@
 
 {% block body %}
 
-    {% include 'Form/edit.html.twig' with {'title': 'tochange' , 'entity': '<?= $entity_class_name ?>' } %}
+    {% include 'Form/edit.html.twig' with { 'entity':  '<?= $entity_class_name ?>'|lower }  %}
 
 {% endblock %}
