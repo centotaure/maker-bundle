@@ -2,6 +2,6 @@
 
 {% block body %}
 
-    {% include 'Form/new.html.twig' with {'entity': '<?= $entity_class_name ?>'} %}
+    {% include 'Form/new.html.twig' with {'className': '<?= strtolower($entity_class_name) ?>'} %}
 
 {% endblock %}

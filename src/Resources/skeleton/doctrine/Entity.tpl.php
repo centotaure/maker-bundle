@@ -6,6 +6,7 @@ namespace <?= $namespace ?>;
 <?php endif ?>
 use Doctrine\ORM\Mapping as ORM;
 use APY\DataGridBundle\Grid\Mapping as GRID;
+use Symfony\Component\Validator\Constraints as Assert;
 /**
 <?php if ($api_resource): ?> * @ApiResource()
 <?php endif ?>

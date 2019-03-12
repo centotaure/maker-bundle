@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\ApyDataGridController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 
 /**
@@ -60,7 +61,7 @@ class <?= $class_name ?> extends ApyDataGridController
     /**
      * @Route("/new", name="app_<?= $route_name ?>_new", methods={"GET","POST"})
      */
-    public function new(Request $request): Response
+    public function newAction(Request $request): Response
     {
         $<?= $entity_var_singular ?> = new <?= $entity_class_name ?>();
         $form = $this->createForm(<?= $form_class_name ?>::class, $<?= $entity_var_singular ?>);
@@ -83,17 +84,19 @@ class <?= $class_name ?> extends ApyDataGridController
     /**
      * @Route("/{<?= $entity_identifier ?>}", name="app_<?= $route_name ?>_show", methods={"GET"})
      */
-    public function show(<?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
+    public function showAction(<?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
+        $deleteForm = $this->createDeleteForm($<?= $entity_var_singular ?>);
         return $this->render('<?= $templates_path ?>/show.html.twig', [
             '<?= $entity_twig_var_singular ?>' => $<?= $entity_var_singular ?>,
+            'deleteForm' => $deleteForm->createView()
         ]);
     }
 
     /**
      * @Route("/{<?= $entity_identifier ?>}/edit", name="app_<?= $route_name ?>_edit", methods={"GET","POST"})
      */
-    public function edit(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
+    public function editAction(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
         $form = $this->createForm(<?= $form_class_name ?>::class, $<?= $entity_var_singular ?>);
         $form->handleRequest($request);
@@ -113,16 +116,41 @@ class <?= $class_name ?> extends ApyDataGridController
     }
 
     /**
-     * @Route("/{<?= $entity_identifier ?>}/delete", name="app_<?= $route_name ?>_delete", methods={"DELETE"})
-     */
-    public function delete(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
+    * @Route("/delete/{<?= $entity_identifier ?>}", name="app_<?= $route_name ?>_delete" )
+    * @Method("DELETE")
+    */
+    public function deleteAction(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>)
     {
-        if ($this->isCsrfTokenValid('delete'.$<?= $entity_var_singular ?>->get<?= ucfirst($entity_identifier) ?>(), $request->request->get('_token'))) {
+
+
+        $form = $this->createDeleteForm($<?= $entity_var_singular ?>);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($<?= $entity_var_singular ?>);
             $entityManager->flush();
+            $this->deletedSuccess();
         }
 
         return $this->redirectToRoute('app_<?= $route_name ?>_index');
+
+
+    }
+
+    private function createDeleteForm(<?= $entity_class_name ?> $<?= $entity_var_singular ?>)
+    {
+        return $this->createFormBuilder()
+        ->setAction($this->generateUrl('app_<?= $route_name ?>_delete', array('<?= $entity_identifier ?>' => $<?= $entity_var_singular ?>->get<?= ucfirst($entity_identifier) ?>())))
+        ->setMethod('DELETE')
+        ->add(
+        'submit',
+        \Symfony\Component\Form\Extension\Core\Type\SubmitType::class,
+        array(
+        'attr' => array('class' => 'alert button'),
+        'label' => 'form.delete',
+        )
+        )
+        ->getForm();
     }
 }

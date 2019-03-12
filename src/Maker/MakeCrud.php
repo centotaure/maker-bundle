@@ -107,6 +107,7 @@ final class MakeCrud extends AbstractMaker
             ];
         }
 
+
         $controllerClassDetails = $generator->createClassNameDetails(
             $entityClassDetails->getRelativeNameWithoutSuffix().'Controller',
             'Controller\\',
@@ -130,6 +131,7 @@ final class MakeCrud extends AbstractMaker
         $entityTwigVarSingular = Str::asTwigVariable($entityVarSingular);
 
         $routeName = Str::asRouteName($controllerClassDetails->getRelativeNameWithoutSuffix());
+        $routeName = str_replace('_','',$routeName);
         $templatesPath = $entityClassDetails->getShortName();
 
         $generator->generateController(
