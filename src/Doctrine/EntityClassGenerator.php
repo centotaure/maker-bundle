@@ -34,12 +34,26 @@ final class EntityClassGenerator
             'Repository'
         );
 
+        $i = 0;
+        $sqlName = "";
+
+        foreach (str_split($entityClassDetails->getRelativeName()) as $char) {
+            if ($i !== 0 && ctype_upper($char) === true) {
+                $sqlName .= "_" . strtolower($char);
+            } else {
+                $sqlName .= strtolower($char);
+            }
+            $i++;
+        }
+        
+
         $entityPath = $this->generator->generateClass(
             $entityClassDetails->getFullName(),
             'doctrine/Entity.tpl.php',
             [
                 'repository_full_class_name' => $repoClassDetails->getFullName(),
                 'api_resource' => $apiResource,
+                'sql_name' => $sqlName
             ]
         );
 

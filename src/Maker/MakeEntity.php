@@ -130,10 +130,15 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
             return;
         }
 
+
+       
+        
+
         $entityClassDetails = $generator->createClassNameDetails(
             $input->getArgument('name'),
             'Entity\\'
         );
+
 
         $classExists = class_exists($entityClassDetails->getFullName());
         if (!$classExists) {
@@ -181,7 +186,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
             if (\is_array($newField)) {
                 $annotationOptions = $newField;
                 unset($annotationOptions['fieldName']);
-                $manipulator->addEntityField($newField['fieldName'], $annotationOptions);
+                $manipulator->addEntityField($newField['fieldName'], $annotationOptions,[],$input->getArgument('name'));
 
                 $currentFields[] = $newField['fieldName'];
             } elseif ($newField instanceof EntityRelation) {

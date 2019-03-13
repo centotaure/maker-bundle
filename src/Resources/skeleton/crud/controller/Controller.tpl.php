@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\ApyDataGridController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\Translation\TranslatorInterface;
 
 
 /**
@@ -61,7 +62,7 @@ class <?= $class_name ?> extends ApyDataGridController
     /**
      * @Route("/new", name="app_<?= $route_name ?>_new", methods={"GET","POST"})
      */
-    public function newAction(Request $request): Response
+    public function newAction(Request $request ,TranslatorInterface $translator): Response
     {
         $<?= $entity_var_singular ?> = new <?= $entity_class_name ?>();
         $form = $this->createForm(<?= $form_class_name ?>::class, $<?= $entity_var_singular ?>);
@@ -69,8 +70,11 @@ class <?= $class_name ?> extends ApyDataGridController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
+            $<?= $entity_var_singular ?>->setUpdatedAt(new \Datetime('now'));
+            $<?= $entity_var_singular ?>->setCreatedAt(new \Datetime('now'));
             $entityManager->persist($<?= $entity_var_singular ?>);
             $entityManager->flush();
+            $this->addSuccess($translator->trans('entity.<?= strtolower($entity_class_name) ?>.createok'));
 
             return $this->redirectToRoute('app_<?= $route_name ?>_index');
         }
@@ -96,14 +100,16 @@ class <?= $class_name ?> extends ApyDataGridController
     /**
      * @Route("/{<?= $entity_identifier ?>}/edit", name="app_<?= $route_name ?>_edit", methods={"GET","POST"})
      */
-    public function editAction(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
+    public function editAction(Request $request,TranslatorInterface $translator, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
         $form = $this->createForm(<?= $form_class_name ?>::class, $<?= $entity_var_singular ?>);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
 
+            $<?= $entity_var_singular ?>->setUpdatedAt(new \Datetime('now'));
+            $this->getDoctrine()->getManager()->flush();
+            $this->addSuccess($translator->trans('entity.<?= strtolower($entity_class_name) ?>.editok'));
             return $this->redirectToRoute('app_<?= $route_name ?>_index', [
                 '<?= $entity_identifier ?>' => $<?= $entity_var_singular ?>->get<?= ucfirst($entity_identifier) ?>(),
             ]);

@@ -83,20 +83,20 @@ final class ClassSourceManipulator
         return $this->sourceCode;
     }
 
-    public function addEntityField(string $propertyName, array $columnOptions, array $comments = [])
+    public function addEntityField(string $propertyName, array $columnOptions, array $comments = [],$className = null)
     {
         $typeHint = $this->getEntityTypeHint($columnOptions['type']);
         $nullable = $columnOptions['nullable'] ?? false;
-        $isId = (bool) ($columnOptions['id'] ?? false);
+        $isId = (bool)($columnOptions['id'] ?? false);
         $grid = $columnOptions['grid'] ?? false;
         unset($columnOptions['grid']);
-
+        
         $comments[] = $this->buildAnnotationLine('@ORM\Column', $columnOptions);
-       if($grid === true && $isId === false){
-           $comments[]= '@GRID\Column(operatorsVisible=false,visible=true)';
-       }else{
-           $comments[]= '@GRID\Column(visible=false)';
-       }
+        if ($grid === true && $isId === false && $className !== null ) {
+            $comments[] = '@GRID\Column(operatorsVisible=false,visible=true,title="entity.'.strtolower($className).'.'.$propertyName.'")';
+        } else {
+            $comments[] = '@GRID\Column(visible=false)';
+        }
         $defaultValue = null;
         if ('array' === $typeHint) {
             $defaultValue = new Node\Expr\Array_([], ['kind' => Node\Expr\Array_::KIND_SHORT]);
@@ -208,7 +208,7 @@ final class ClassSourceManipulator
 
     public function addGetter(string $propertyName, $returnType, bool $isReturnTypeNullable, array $commentLines = [])
     {
-        $methodName = 'get'.Str::asCamelCase($propertyName);
+        $methodName = 'get' . Str::asCamelCase($propertyName);
 
         $this->addCustomGetter($propertyName, $methodName, $returnType, $isReturnTypeNullable, $commentLines);
     }
@@ -234,8 +234,7 @@ final class ClassSourceManipulator
     public function createMethodBuilder(string $methodName, $returnType, bool $isReturnTypeNullable, array $commentLines = []): Builder\Method
     {
         $methodNodeBuilder = (new Builder\Method($methodName))
-            ->makePublic()
-        ;
+            ->makePublic();
 
         if (null !== $returnType) {
             $methodNodeBuilder->setReturnType($isReturnTypeNullable ? new Node\NullableType($returnType) : $returnType);
@@ -297,7 +296,7 @@ final class ClassSourceManipulator
             ];
 
             if ($extraComments) {
-                $newDocLines[] = ' * '.$extraComments;
+                $newDocLines[] = ' * ' . $extraComments;
             }
 
             $newDocLines[] = substr($docLines[0], $endingPosition);
@@ -308,7 +307,7 @@ final class ClassSourceManipulator
             $docLines,
             \count($docLines) - 1,
             0,
-            ' * '.$this->buildAnnotationLine('@'.$annotationClassAlias, $options)
+            ' * ' . $this->buildAnnotationLine('@' . $annotationClassAlias, $options)
         );
 
         $docComment = new Doc(implode("\n", $docLines));
@@ -335,8 +334,7 @@ final class ClassSourceManipulator
             ->makePublic()
             ->addStmt(
                 new Node\Stmt\Return_($propertyFetch)
-            )
-        ;
+            );
 
         if (null !== $returnType) {
             $getterNodeBuilder->setReturnType($isReturnTypeNullable ? new Node\NullableType($returnType) : $returnType);
@@ -351,7 +349,7 @@ final class ClassSourceManipulator
 
     private function createSetterNodeBuilder(string $propertyName, $type, bool $isNullable, array $commentLines = [])
     {
-        $methodName = 'set'.Str::asCamelCase($propertyName);
+        $methodName = 'set' . Str::asCamelCase($propertyName);
         $setterNodeBuilder = (new Builder\Method($methodName))->makePublic();
 
         if ($commentLines) {
@@ -376,7 +374,7 @@ final class ClassSourceManipulator
 
     /**
      * @param string $annotationClass The annotation: e.g. "@ORM\Column"
-     * @param array  $options         Key-value pair of options for the annotation
+     * @param array $options Key-value pair of options for the annotation
      *
      * @return string
      */
@@ -579,8 +577,7 @@ final class ClassSourceManipulator
                     new Node\Expr\PropertyFetch(new Node\Expr\Variable('this'), $relation->getPropertyName())
                 ),
                 new Node\Expr\Variable($argName)
-            ))
-        ;
+            ));
 
         // set the owning side of the relationship
         if (!$relation->isOwning()) {
@@ -733,7 +730,7 @@ final class ClassSourceManipulator
                     $alias = $use->alias ? $use->alias->name : $use->name->getLast();
 
                     // the use statement already exists? Don't add it again
-                    if ($class === (string) $use->name) {
+                    if ($class === (string)$use->name) {
                         return $alias;
                     }
 
@@ -741,13 +738,13 @@ final class ClassSourceManipulator
                         // we have a conflicting alias!
                         // to be safe, use the fully-qualified class name
                         // everywhere and do not add another use statement
-                        return '\\'.$class;
+                        return '\\' . $class;
                     }
                 }
 
                 // if $class is alphabetically before this use statement, place it before
                 // only set $targetIndex the first time you find it
-                if (null === $targetIndex && Str::areClassesAlphabetical($class, (string) $stmt->uses[0]->name)) {
+                if (null === $targetIndex && Str::areClassesAlphabetical($class, (string)$stmt->uses[0]->name)) {
                     $targetIndex = $index;
                 }
 
@@ -812,7 +809,7 @@ final class ClassSourceManipulator
                 continue;
             }
 
-            $newCode = str_replace($placeholder, '// '.$comment, $newCode);
+            $newCode = str_replace($placeholder, '// ' . $comment, $newCode);
         }
         $this->pendingComments = [];
 
@@ -876,7 +873,7 @@ final class ClassSourceManipulator
 
     /**
      * @param callable $filterCallback
-     * @param array    $ast
+     * @param array $ast
      *
      * @return Node|null
      */
@@ -898,17 +895,15 @@ final class ClassSourceManipulator
         switch ($context) {
             case self::CONTEXT_OUTSIDE_CLASS:
                 return (new Builder\Use_('__EXTRA__LINE', Node\Stmt\Use_::TYPE_NORMAL))
-                    ->getNode()
-                ;
+                    ->getNode();
             case self::CONTEXT_CLASS:
                 return (new Builder\Property('__EXTRA__LINE'))
                     ->makePrivate()
-                    ->getNode()
-                ;
+                    ->getNode();
             case self::CONTEXT_CLASS_METHOD:
                 return new Node\Expr\Variable('__EXTRA__LINE');
             default:
-                throw new \Exception('Unknown context: '.$context);
+                throw new \Exception('Unknown context: ' . $context);
         }
     }
 
@@ -925,7 +920,7 @@ final class ClassSourceManipulator
             case self::CONTEXT_CLASS_METHOD:
                 return BuilderHelpers::normalizeStmt(new Node\Expr\Variable(sprintf('__COMMENT__VAR_%d', \count($this->pendingComments) - 1)));
             default:
-                throw new \Exception('Unknown context: '.$context);
+                throw new \Exception('Unknown context: ' . $context);
         }
     }
 
@@ -998,8 +993,7 @@ final class ClassSourceManipulator
 
         $methodBuilder
             ->addStmt($this->createBlankLineNode(self::CONTEXT_CLASS_METHOD))
-            ->addStmt(new Node\Stmt\Return_(new Node\Expr\Variable('this')))
-        ;
+            ->addStmt(new Node\Stmt\Return_(new Node\Expr\Variable('this')));
         $methodBuilder->setReturnType('self');
     }
 
@@ -1031,16 +1025,16 @@ final class ClassSourceManipulator
             case 'datetimetz':
             case 'date':
             case 'time':
-                return '\\'.\DateTimeInterface::class;
+                return '\\' . \DateTimeInterface::class;
 
             case 'datetime_immutable':
             case 'datetimetz_immutable':
             case 'date_immutable':
             case 'time_immutable':
-                return '\\'.\DateTimeImmutable::class;
+                return '\\' . \DateTimeImmutable::class;
 
             case 'dateinterval':
-                return '\\'.\DateInterval::class;
+                return '\\' . \DateInterval::class;
 
             case 'object':
             case 'decimal':
@@ -1060,7 +1054,7 @@ final class ClassSourceManipulator
 
     private function getThisFullClassName(): string
     {
-        return (string) $this->getClassNode()->namespacedName;
+        return (string)$this->getClassNode()->namespacedName;
     }
 
     /**
@@ -1152,7 +1146,7 @@ final class ClassSourceManipulator
             self::CONTEXT_CLASS_METHOD
         ));
 
-        $varName = 'new'.ucfirst($relation->getTargetPropertyName());
+        $varName = 'new' . ucfirst($relation->getTargetPropertyName());
         // $newUserProfile = null === $user ? null : $this;
         $setterNodeBuilder->addStmt(
             new Node\Stmt\Expression(new Node\Expr\Assign(
