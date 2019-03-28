@@ -13,6 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 <?php endif ?>
  * @ORM\Table(name="centoweb_<?= $sql_name ?>")
  * @ORM\Entity(repositoryClass="<?= $repository_full_class_name ?>")
+ * @ORM\HasLifecycleCallbacks()
  */
 class <?= $class_name."\n" ?>
 {

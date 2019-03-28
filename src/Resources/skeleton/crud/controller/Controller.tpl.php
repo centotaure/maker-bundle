@@ -39,6 +39,7 @@ class <?= $class_name ?> extends ApyDataGridController
         'entity' => 'App:<?= $entity_class_name ?>',
         'show' => 'app_<?= $route_name ?>_show',
         'edit' => 'app_<?= $route_name ?>_edit',
+        'delete' => 'app_<?= $route_name ?>_delete',
         );
 
         $this->gridList($data);
@@ -90,17 +91,15 @@ class <?= $class_name ?> extends ApyDataGridController
      */
     public function showAction(<?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
-        $deleteForm = $this->createDeleteForm($<?= $entity_var_singular ?>);
         return $this->render('<?= $templates_path ?>/show.html.twig', [
-            '<?= $entity_twig_var_singular ?>' => $<?= $entity_var_singular ?>,
-            'deleteForm' => $deleteForm->createView()
+            '<?= $entity_twig_var_singular ?>' => $<?= $entity_var_singular ?>
         ]);
     }
 
     /**
-     * @Route("/{<?= $entity_identifier ?>}/edit", name="app_<?= $route_name ?>_edit", methods={"GET","POST"})
+     * @Route("/{<?= $entity_identifier ?>}/edit/{route}", name="app_<?= $route_name ?>_edit", methods={"GET","POST"},defaults={"route":null})
      */
-    public function editAction(Request $request,TranslatorInterface $translator, <?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
+    public function editAction(Request $request,TranslatorInterface $translator, <?= $entity_class_name ?> $<?= $entity_var_singular ?>, $route="index"): Response
     {
         $form = $this->createForm(<?= $form_class_name ?>::class, $<?= $entity_var_singular ?>);
         $form->handleRequest($request);
@@ -112,35 +111,41 @@ class <?= $class_name ?> extends ApyDataGridController
             $this->addSuccess($translator->trans('entity.<?= strtolower($entity_class_name) ?>.editok'));
             return $this->redirectToRoute('app_<?= $route_name ?>_index', [
                 '<?= $entity_identifier ?>' => $<?= $entity_var_singular ?>->get<?= ucfirst($entity_identifier) ?>(),
+                'route' => $route
             ]);
         }
 
         return $this->render('<?= $templates_path ?>/edit.html.twig', [
             '<?= $entity_twig_var_singular ?>' => $<?= $entity_var_singular ?>,
             'form' => $form->createView(),
+            'route' => $route
         ]);
     }
 
     /**
-    * @Route("/delete/{<?= $entity_identifier ?>}", name="app_<?= $route_name ?>_delete" )
+    * @Route("/delete/{<?= $entity_identifier ?>}/{route}", name="app_<?= $route_name ?>_delete",defaults={"route":null} )
     * @Method("DELETE")
     */
-    public function deleteAction(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>)
+    public function deleteAction(Request $request, <?= $entity_class_name ?> $<?= $entity_var_singular ?>, $route="index")
     {
-
-
         $form = $this->createDeleteForm($<?= $entity_var_singular ?>);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($<?= $entity_var_singular ?>);
-            $entityManager->flush();
-            $this->deletedSuccess();
+        if ($request->isMethod('Get')) {
+            return $this->render('<?= $entity_class_name ?>/confirm_delete.html.twig', [
+                '<?= $entity_var_singular ?>' => $<?= $entity_var_singular ?>,
+                'route' => $route,
+                'deleteForm' => $form->createView(),
+            ]);
+        } else {
+            if ($form->isSubmitted() && $form->isValid()) {
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->remove($<?= $entity_var_singular ?>);
+                    $entityManager->flush();
+                    $this->deletedSuccess();
+             }
+            return $this->redirectToRoute('app_<?= $route_name ?>_index');
         }
-
-        return $this->redirectToRoute('app_<?= $route_name ?>_index');
-
 
     }
 

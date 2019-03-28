@@ -163,12 +163,12 @@ final class MakeCrud extends AbstractMaker
         );
 
         $templates = [
-            'delete_form' => [
-                'route_name' => $routeName,
+            'confirm_delete' => [
+                'entity_class_name' => $entityClassDetails->getShortName(),
                 'entity_twig_var_singular' => $entityTwigVarSingular,
                 'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
+                'route_name' => $routeName,
             ],
-            'form' => [],
             'edit' => [
                 'entity_class_name' => $entityClassDetails->getShortName(),
                 'entity_twig_var_singular' => $entityTwigVarSingular,
