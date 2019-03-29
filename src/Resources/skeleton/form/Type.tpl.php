@@ -25,14 +25,16 @@ class <?= $class_name ?> extends SecurityFormType
     {
         $builder
 <?php foreach ($form_fields as $form_field => $typeOptions): ?>
-<?php if (null === $typeOptions['type'] && !$typeOptions['options_code']): ?>
-            ->add('<?= $form_field ?>',null,["label" => "entity.<?= strtolower($bounded_class_name)?>.<?= $form_field ?>"])
-<?php elseif (null !== $typeOptions['type'] && !$typeOptions['options_code']): ?>
-            ->add('<?= $form_field ?>', <?= $typeOptions['type'] ?>::class,["label"=>"entity.<?= strtolower($bounded_class_name)?>.<?= $form_field ?>"])
-<?php else: ?>
-            ->add('<?= $form_field ?>', <?= $typeOptions['type'] ? ($typeOptions['type'].'::class') : 'null' ?>, [
-<?= $typeOptions['options_code']."\n" ?>
-            ])
+<?php if ($form_field !== "createdAt" && $form_field !== "updatedAt" && $form_field !== "deletedAt"):  ?>
+    <?php if (null === $typeOptions['type'] && !$typeOptions['options_code']): ?>
+                ->add('<?= $form_field ?>',null,["label" => "entity.<?= strtolower($bounded_class_name)?>.<?= $form_field ?>"])
+    <?php elseif (null !== $typeOptions['type'] && !$typeOptions['options_code']): ?>
+                ->add('<?= $form_field ?>', <?= $typeOptions['type'] ?>::class,["label"=>"entity.<?= strtolower($bounded_class_name)?>.<?= $form_field ?>"])
+    <?php else: ?>
+                ->add('<?= $form_field ?>', <?= $typeOptions['type'] ? ($typeOptions['type'].'::class') : 'null' ?>, [
+    <?= $typeOptions['options_code']."\n" ?>
+                ])
+    <?php endif; ?>
 <?php endif; ?>
 <?php endforeach; ?>
             ->addEventListener(

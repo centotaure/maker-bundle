@@ -113,7 +113,8 @@ final class ClassSourceManipulator
 
         // don't generate setters for id fields
         if (!$isId) {
-            $this->addSetter($propertyName, $typeHint, $nullable);
+            //set ?for all setter param
+            $this->addSetter($propertyName, $typeHint, true);
         }
     }
 

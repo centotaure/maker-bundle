@@ -77,11 +77,11 @@ class <?= $class_name ?> extends ApyDataGridController
             $entityManager->flush();
             $this->addSuccess($translator->trans('entity.<?= strtolower($entity_class_name) ?>.createok'));
 
-            return $this->redirectToRoute('app_<?= $route_name ?>_index');
+            return $this->redirectToRoute('app_<?= $route_name ?>_show');
         }
 
         return $this->render('<?= $templates_path ?>/new.html.twig', [
-            '<?= $entity_twig_var_singular ?>' => $<?= $entity_var_singular ?>,
+            '<?= $entity_var_singular ?>' => $<?= $entity_var_singular ?>,
             'form' => $form->createView(),
         ]);
     }
@@ -92,7 +92,7 @@ class <?= $class_name ?> extends ApyDataGridController
     public function showAction(<?= $entity_class_name ?> $<?= $entity_var_singular ?>): Response
     {
         return $this->render('<?= $templates_path ?>/show.html.twig', [
-            '<?= $entity_twig_var_singular ?>' => $<?= $entity_var_singular ?>
+            '<?= $entity_var_singular ?>' => $<?= $entity_var_singular ?>
         ]);
     }
 
@@ -109,14 +109,14 @@ class <?= $class_name ?> extends ApyDataGridController
             $<?= $entity_var_singular ?>->setUpdatedAt(new \Datetime('now'));
             $this->getDoctrine()->getManager()->flush();
             $this->addSuccess($translator->trans('entity.<?= strtolower($entity_class_name) ?>.editok'));
-            return $this->redirectToRoute('app_<?= $route_name ?>_index', [
+            return $this->redirectToRoute('app_<?= $route_name ?>_'.$route, [
                 '<?= $entity_identifier ?>' => $<?= $entity_var_singular ?>->get<?= ucfirst($entity_identifier) ?>(),
                 'route' => $route
             ]);
         }
 
         return $this->render('<?= $templates_path ?>/edit.html.twig', [
-            '<?= $entity_twig_var_singular ?>' => $<?= $entity_var_singular ?>,
+            '<?= $entity_var_singular ?>' => $<?= $entity_var_singular ?>,
             'form' => $form->createView(),
             'route' => $route
         ]);
